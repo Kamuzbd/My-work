@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Email Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #1a1a1a, #000);
+            color: #f8f8f2;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 1.5s ease-in-out;
+        }
+        .container {
+            width: 400px;
+            text-align: center;
+            padding: 30px;
+            background: radial-gradient(circle, #333, #000);
+            border: 2px solid #ff0000;
+            border-radius: 15px;
+            box-shadow: 0 0 20px 5px rgba(255, 0, 0, 0.8);
+            position: relative;
+            animation: slideIn 1.5s ease-out;
+        }
+        .monster {
+            width: 180px;
+            height: 180px;
+            background: radial-gradient(circle at center, #ff0000, #8b0000);
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            position: relative;
+            box-shadow: 0 0 30px 10px rgba(255, 0, 0, 0.8);
+            animation: pulse 2s infinite, shake 0.7s ease-in-out infinite;
+        }
+        .monster::before, .monster::after {
+            content: '';
+            width: 40px;
+            height: 40px;
+            background: #fff;
+            border-radius: 50%;
+            position: absolute;
+            top: 25%;
+            box-shadow: 0 0 15px 3px rgba(255, 255, 255, 0.8);
+        }
+        .monster::before {
+            left: 25%;
+        }
+        .monster::after {
+            right: 25%;
+        }
+        .monster-mouth {
+            width: 100px;
+            height: 50px;
+            background: #000;
+            border-radius: 0 0 100px 100px;
+            position: absolute;
+            bottom: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            overflow: hidden;
+        }
+        .monster-teeth {
+            position: absolute;
+            width: 15px;
+            height: 30px;
+            background: #fff;
+            clip-path: polygon(50% 0, 100% 100%, 0% 100%);
+        }
+        .monster-teeth.left {
+            left: 20%;
+            top: 0;
+        }
+        .monster-teeth.right {
+            right: 20%;
+            top: 0;
+        }
+        .monster-horns {
+            position: absolute;
+            width: 40px;
+            height: 80px;
+            background: radial-gradient(circle, #8b0000, #ff0000);
+            border-radius: 50%;
+            transform: rotate(45deg);
+            box-shadow: 0 0 20px 5px rgba(255, 255, 255, 0.5);
+        }
+        .monster-horns.left {
+            left: -20px;
+            top: -40px;
+        }
+        .monster-horns.right {
+            right: -20px;
+            top: -40px;
+            transform: rotate(-45deg);
+        }
+        .btn {
+            margin-top: 20px;
+            padding: 12px 24px;
+            background-color: #ff4500;
+            color: white;
+            border: 2px solid #ff0000;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 18px;
+            box-shadow: 0 4px 6px rgba(255, 69, 0, 0.5);
+            transition: transform 0.2s, background-color 0.3s;
+        }
+        .btn:hover {
+            background-color: #ff6347;
+            transform: scale(1.1);
+        }
+        .output {
+            margin-top: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #ff6347;
+            text-shadow: 0 0 10px #ff4500;
+            animation: glow 1.5s infinite alternate;
+        }
+        .output:hover {
+            text-decoration: underline;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 0 30px 10px rgba(255, 0, 0, 0.8);
+            }
+            50% {
+                transform: scale(1.1);
+                box-shadow: 0 0 40px 15px rgba(255, 0, 0, 1);
+            }
+        }
+
+        @keyframes shake {
+            0%, 100% {
+                transform: translateX(0);
+            }
+            25% {
+                transform: translateX(-5px);
+            }
+            75% {
+                transform: translateX(5px);
+            }
+        }
+
+        @keyframes glow {
+            0% {
+                text-shadow: 0 0 5px #ff4500;
+            }
+            100% {
+                text-shadow: 0 0 20px #ff6347;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="monster">
+            <div class="monster-horns left"></div>
+            <div class="monster-horns right"></div>
+            <div class="monster-mouth">
+                <div class="monster-teeth left"></div>
+                <div class="monster-teeth right"></div>
+            </div>
+        </div>
+        <h1>Random Email Generator</h1>
+        <button class="btn" onclick="generateRandomEmail()">Generate Random Email</button>
+        <div class="output" id="output" onclick="copyToClipboard()"></div>
+    </div>
+
+    <script>
+        function generateRandomEmail() {
+            const alphabet = "abcdefghijklmnopqrstuvwxyz";
+            const randomLetter = alphabet[Math.floor(Math.random() * alphabet.length)];
+            const domain = "gmail.com";
+            const usernameLength = Math.floor(Math.random() * 10) + 5; // Random length between 5 and 15
+
+            let username = "";
+            for (let i = 0; i < usernameLength; i++) {
+                username += alphabet[Math.floor(Math.random() * alphabet.length)];
+            }
+
+            const generatedEmail = username + randomLetter + "@" + domain;
+            const outputElement = document.getElementById("output");
+            outputElement.innerText = generatedEmail;
+            outputElement.setAttribute("data-email", generatedEmail);
+        }
+
+        function copyToClipboard() {
+            const outputElement = document.getElementById("output");
+            const email = outputElement.getAttribute("data-email");
+            if (email) {
+                navigator.clipboard.writeText(email).then(() => {
+                    alert("Email copied to clipboard: " + email);
+                }).catch(err => {
+                    console.error("Could not copy email: ", err);
+                });
+            }
+        }
+
+        // Add loading animation on page refresh
+        document.addEventListener('DOMContentLoaded', () => {
+            const body = document.querySelector('body');
+            body.style.transition = 'opacity 0.5s';
+            body.style.opacity = '1';
+
+            window.addEventListener('beforeunload', () => {
+                body.style.opacity = '0';
+            });
+        });
+    </script>
+</body>
+</html>
