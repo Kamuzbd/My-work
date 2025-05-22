@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>DARKBD SEARCH (All-in-One)</title>
+<link rel="icon" href="https://yt3.ggpht.com/c3rTtueQQsykYP_mob9BvcgmLdlxlE_pa8_0345XsbEV6LaH2kBj3jcuAoIfbK4HK9_L6Ew4yxjFxA=s500-c-fcrop64=1,00000000ffffffff-rw-nd-v1" type="image/png" />
+<style>
+  :root {
+    --bg-light: #f0f0f0;
+    --text-light: #111;
+    --bg-dark: #000;
+    --text-dark: #0ff;
+    --accent: #0ff;
+    --input-bg-light: #fff;
+    --input-bg-dark: #111;
+  }
+  body {
+    margin: 0; padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: var(--bg-dark);
+    color: var(--text-dark);
+    min-height: 100vh;
+    overflow-x: hidden;
+    transition: background 0.4s, color 0.4s;
+    position: relative;
+  }
+  body.light {
+    background: var(--bg-light);
+    color: var(--text-light);
+  }
+  .bg {
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(circle at center, rgba(0,255,255,0.1), transparent);
+    backdrop-filter: blur(12px);
+    overflow: hidden;
+    z-index: 0;
+    transition: background 0.4s;
+  }
+  body.light .bg {
+    background: radial-gradient(circle at center, rgba(0,150,255,0.15), transparent);
+  }
+  .blob {
+    position: absolute;
+    width: 280px;
+    height: 280px;
+    background: rgba(0, 255, 255, 0.1);
+    border-radius: 50%;
+    filter: blur(55px);
+    animation: float 10s ease-in-out infinite;
+    pointer-events: none;
+    transition: background 0.4s;
+  }
+  body.light .blob {
+    background: rgba(0, 150, 255, 0.1);
+  }
+  #blob1 { top: 5vh; left: 10vw; animation-delay: 0s; }
+  #blob2 { top: 30vh; left: 70vw; animation-delay: 3s; }
+  #blob3 { top: 65vh; left: 30vw; animation-delay: 6s; }
+
+  @keyframes float {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(50px, -50px) scale(1.15); }
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 600px;
+    margin: 100px auto 40px;
+    text-align: center;
+    padding: 0 10px;
+  }
+  h1 {
+    margin-bottom: 20px;
+    color: var(--accent);
+    text-shadow: 0 0 15px var(--accent);
+    user-select: none;
+  }
+  .search-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  input[type="text"] {
+    flex-grow: 1;
+    font-size: 18px;
+    padding: 14px 18px;
+    border-radius: 10px;
+    border: none;
+    outline: none;
+    background: var(--input-bg-dark);
+    color: var(--text-dark);
+    box-shadow: 0 0 10px var(--accent);
+    transition: background 0.4s, color 0.4s;
+  }
+  body.light input[type="text"] {
+    background: var(--input-bg-light);
+    color: var(--text-light);
+    box-shadow: 0 0 8px #0099ff;
+  }
+
+  button.voice-btn {
+    background: var(--accent);
+    border: none;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 0 8px var(--accent);
+    transition: background 0.4s;
+  }
+  button.voice-btn:hover {
+    background: #00ffff;
+  }
+  button.voice-btn svg {
+    width: 22px;
+    height: 22px;
+    fill: #000;
+  }
+  body.light button.voice-btn svg {
+    fill: #000;
+  }
+
+  .suggestions {
+    margin-top: 0;
+    background: rgba(0,0,0,0.85);
+    border-radius: 0 0 10px 10px;
+    max-height: 280px;
+    overflow-y: auto;
+    text-align: left;
+    box-shadow: 0 0 15px var(--accent);
+    user-select: none;
+    transition: background 0.4s;
+  }
+  body.light .suggestions {
+    background: rgba(255,255,255,0.9);
+    color: var(--text-light);
+    box-shadow: 0 0 12px #0099ff;
+  }
+  .suggestion-item {
+    padding: 12px 16px;
+    cursor: pointer;
+    border-bottom: 1px solid #222;
+    transition: background 0.3s, color 0.3s;
+  }
+  body.light .suggestion-item {
+    border-bottom: 1px solid #ccc;
+  }
+  .suggestion-item:hover {
+    background: var(--accent);
+    color: #000;
+  }
+
+  .popup {
+    margin-top: 30px;
+    padding: 20px;
+    background: rgba(0,0,0,0.85);
+    border-radius: 12px;
+    box-shadow: 0 0 20px var(--accent);
+    transition: background 0.4s, color 0.4s;
+  }
+  body.light .popup {
+    background: rgba(255,255,255,0.95);
+    color: var(--text-light);
+    box-shadow: 0 0 20px #0099ff;
+  }
+  .popup.hidden {
+    display: none;
+  }
+
+  .buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 15px;
+  }
+  .buttons a {
+    background: var(--accent);
+    color: #000;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: 0 0 8px var(--accent);
+    transition: background 0.3s;
+  }
+  .buttons a:hover {
+    background: #00f5ff;
+  }
+
+  #themeToggle {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    background: var(--accent);
+    border: none;
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-weight: bold;
+    color: #000;
+    cursor: pointer;
+    box-shadow: 0 0 12px var(--accent);
+    z-index: 10;
+    user-select: none;
+    transition: background 0.4s;
+  }
+  #themeToggle:hover {
+    background: #00ffff;
+  }
+  body.light #themeToggle {
+    color: #000;
+  }
+
+  @media (max-width: 480px) {
+    .container {
+      margin: 60px 10px 20px;
+    }
+    .buttons {
+      gap: 8px;
+    }
+    .buttons a {
+      padding: 8px 12px;
+      font-size: 14px;
+    }
+    input[type="text"] {
+      font-size: 16px;
+      padding: 12px 14px;
+    }
+    button.voice-btn {
+      width: 38px;
+      height: 38px;
+    }
+  }
+</style>
+</head>
+<body>
+<button id="themeToggle" aria-label="Toggle Dark/Light Mode">Light Mode</button>
+
+<div class="bg">
+  <div class="blob" id="blob1"></div>
+  <div class="blob" id="blob2"></div>
+  <div class="blob" id="blob3"></div>
+</div>
+
+<div class="container" role="main">
+  <h1>DARKBD SEARCH</h1>
+  <div class="search-wrapper">
+    <input
+      id="searchInput"
+      type="text"
+      placeholder="Type or speak to search..."
+      autocomplete="off"
+      aria-label="Search input"
+      spellcheck="false"
+    />
+    <button class="voice-btn" id="voiceBtn" aria-label="Start voice input" title="Start voice input">
+      <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+        <path d="M12 14a3 3 0 003-3V5a3 3 0 10-6 0v6a3 3 0 003 3zM19 10v1a7 7 0 01-14 0v-1H3v1a9 9 0 008 8.95V21h2v-1.05A9 9 0 0021 11v-1z"/>
+      </svg>
+    </button>
+  </div>
+  <div class="suggestions" id="suggestions" role="listbox" aria-label="Search suggestions"></div>
+
+  <div class="popup hidden" id="popup" role="region" aria-live="polite" aria-atomic="true">
+    <div>Search results for: <strong id="searchTermDisplay"></strong></div>
+    <div class="buttons" id="buttonsContainer" role="list"></div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const input = document.getElementById("searchInput");
+  const suggestionsBox = document.getElementById("suggestions");
+  const popup = document.getElementById("popup");
+  const searchTermDisplay = document.getElementById("searchTermDisplay");
+  const buttonsContainer = document.getElementById("buttonsContainer");
+  const voiceBtn = document.getElementById("voiceBtn");
+  const themeToggle = document.getElementById("themeToggle");
+  const blobs = document.querySelectorAll(".blob");
+
+  // --- THEME TOGGLE ---
+  function updateThemeUI(isDark) {
+    if (isDark) {
+      document.body.classList.remove("light");
+      themeToggle.textContent = "Light Mode";
+    } else {
+      document.body.classList.add("light");
+      themeToggle.textContent = "Dark Mode";
+    }
+  }
+
+  let darkMode = localStorage.getItem("darkMode");
+  if (darkMode === null) {
+    darkMode = "true"; // default dark mode on
+    localStorage.setItem("darkMode", darkMode);
+  }
+  updateThemeUI(darkMode === "true");
+
+  themeToggle.addEventListener("click", () => {
+    darkMode = darkMode === "true" ? "false" : "true";
+    localStorage.setItem("darkMode", darkMode);
+    updateThemeUI(darkMode === "true");
+  });
+
+  // --- GOOGLE AUTOCOMPLETE SUGGESTIONS (JSONP) ---
+  // Create a script element to fetch suggestions from Google API
+  // Google Suggest API: https://suggestqueries.google.com/complete/search?client=firefox&q=term
+
+  function fetchSuggestions(query) {
+    if (!query) {
+      suggestionsBox.innerHTML = "";
+      return;
+    }
+
+    // JSONP callback name
+    const callbackName = "suggestCallback";
+
+    // Remove old script if exists
+    const oldScript = document.getElementById("jsonpScript");
+    if (oldScript) oldScript.remove();
+
+    // Define callback function
+    window[callbackName] = function (data) {
+      if (!data || data.length < 2) {
+        suggestionsBox.innerHTML = "";
+        return;
+      }
+      const suggestions = data[1];
+      showSuggestions(suggestions);
+    };
+
+    // Create JSONP script
+    const script = document.createElement("script");
+    script.src = `https://suggestqueries.google.com/complete/search?client=firefox&q=${encodeURIComponent(query)}&callback=${callbackName}`;
+    script.id = "jsonpScript";
+    script.onerror = () => {
+      suggestionsBox.innerHTML = "";
+    };
+    document.body.appendChild(script);
+  }
+
+  function showSuggestions(suggestions) {
+    if (!suggestions.length) {
+      suggestionsBox.innerHTML = "";
+      return;
+    }
+    suggestionsBox.innerHTML = "";
+    suggestions.forEach(s => {
+      const div = document.createElement("div");
+      div.className = "suggestion-item";
+      div.textContent = s;
+      div.setAttribute("role", "option");
+      div.tabIndex = 0;
+      div.onclick = () => {
+        input.value = s;
+        suggestionsBox.innerHTML = "";
+        showSearchApps(s);
+      };
+      div.onkeydown = e => {
+        if (e.key === "Enter") {
+          input.value = s;
+          suggestionsBox.innerHTML = "";
+          showSearchApps(s);
+        }
+      };
+      suggestionsBox.appendChild(div);
+    });
+  }
+
+  // --- SHOW SEARCH APPS ---
+  function showSearchApps(term) {
+    searchTermDisplay.textContent = term;
+    popup.classList.remove("hidden");
+    buttonsContainer.innerHTML = "";
+
+    const apps = [
+      { name: "Google", url: `https://www.google.com/search?q=${encodeURIComponent(term)}` },
+      { name: "YouTube", url: `https://www.youtube.com/results?search_query=${encodeURIComponent(term)}` },
+      { name: "Instagram", url: `https://www.instagram.com/explore/tags/${encodeURIComponent(term)}` },
+      { name: "TikTok", url: `https://www.tiktok.com/tag/${encodeURIComponent(term)}` },
+      { name: "Facebook", url: `https://www.facebook.com/search/top?q=${encodeURIComponent(term)}` }
+    ];
+
+    apps.forEach(app => {
+      const a = document.createElement("a");
+      a.href = app.url;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      a.textContent = app.name;
+      buttonsContainer.appendChild(a);
+    });
+  }
+
+  // --- INPUT EVENTS ---
+  input.addEventListener("input", e => {
+    const val = e.target.value.trim();
+    if (val.length > 0) {
+      fetchSuggestions(val);
+      popup.classList.add("hidden");
+    } else {
+      suggestionsBox.innerHTML = "";
+      popup.classList.add("hidden");
+    }
+  });
+
+  input.addEventListener("keydown", e => {
+    if (e.key === "Enter" && input.value.trim()) {
+      suggestionsBox.innerHTML = "";
+      showSearchApps(input.value.trim());
+    }
+  });
+
+  // --- VOICE INPUT ---
+  let recognition;
+  let recognizing = false;
+
+  if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.lang = 'en-US';
+    recognition.interimResults = false;
+
+    recognition.onstart = () => {
+      recognizing = true;
+      voiceBtn.style.backgroundColor = '#00ffff';
+    };
+    recognition.onend = () => {
+      recognizing = false;
+      voiceBtn.style.backgroundColor = '';
+    };
+    recognition.onerror = (e) => {
+      recognizing = false;
+      voiceBtn.style.backgroundColor = '';
+      alert("Voice recognition error: " + e.error);
+    };
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      input.value = transcript;
+      input.dispatchEvent(new Event('input'));
+      showSearchApps(transcript);
+    };
+
+    voiceBtn.onclick = () => {
+      if (recognizing) {
+        recognition.stop();
+        return;
+      }
+      recognition.start();
+    };
+  } else {
+    voiceBtn.style.display = "none";
+  }
+
+  // --- BACKGROUND BLOB MOVEMENT ---
+  document.addEventListener('mousemove', e => {
+    const { innerWidth, innerHeight } = window;
+    blobs.forEach((blob, i) => {
+      const speed = (i + 1) * 0.03;
+      const x = (e.clientX - innerWidth / 2) * speed;
+      const y = (e.clientY - innerHeight / 2) * speed;
+      blob.style.transform = `translate(${x}px, ${y}px)`;
+    });
+  });
+
+  // --- PWA SERVICE WORKER ---
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(console.error);
+  }
+})();
+</script>
+
+<!--
+=============================
+Place this code in a separate file named "sw.js" at the root:
+
+const CACHE_NAME = 'voice-search-pwa-v1';
+const urlsToCache = [
+  '.',
+  './index.html',
+  './sw.js',
+];
+
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
+  );
+});
+
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(
+        keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
+      )
+    )
+  );
+});
+
+self.addEventListener('fetch', event => {
+  event.respondWith(
+    caches.match(event.request).then(resp => resp || fetch(event.request))
+  );
+});
+=============================
+-->
+
+</body>
+</html>
