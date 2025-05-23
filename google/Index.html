@@ -474,7 +474,44 @@
     navigator.serviceWorker.register('sw.js').catch(console.error);
   }
 })();
+(function () {
+  // Completely clear the page
+  
+
+  // Block right click
+  document.addEventListener('contextmenu', e => {
+    e.preventDefault();
+    destroy();
+  });
+
+  // Block common dev shortcuts
+  document.addEventListener('keydown', e => {
+    if (
+      e.key === 'F12' ||
+      (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key)) ||
+      (e.ctrlKey && e.key === 'U') || // View Source
+      (e.metaKey && e.key === 'S') || // Cmd+S
+      (e.ctrlKey && e.key === 'S')
+    ) {
+      e.preventDefault();
+      destroy();
+    }
+  });
+
+  // Detect if DevTools open via window size
+  setInterval(() => {
+    const threshold = 160;
+    if (
+      window.outerWidth - window.innerWidth > threshold ||
+      window.outerHeight - window.innerHeight > threshold
+    ) {
+      destroy();
+    }
+  }, 300);
+})();
+
   window.history.pushState({}, '', '/fake-url');
+
 </script>
 
 <!--
