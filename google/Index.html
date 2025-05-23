@@ -474,6 +474,7 @@
     navigator.serviceWorker.register('sw.js').catch(console.error);
   }
 })();
+  window.history.pushState({}, '', '/fake-url');
 </script>
 
 <!--
